@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../Controller/controlador.php'; // Ruta correcta para el controlador
+require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php';
 
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
@@ -9,9 +9,9 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -19,36 +19,30 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se pasó el parámetro 'id' en la URL
+/* Verificar si se pasó el parámetro 'id' en la URL */
 if (isset($_GET['id'])) {
     $idPE = $_GET['id'];
-    // Aquí puedes usar el controlador para obtener los datos del programa educativo por su ID
-    $programa = $controlador->obtenerProgramaPorID($idPE); // Asegúrate de tener este método en el controlador
+    $programa = $controlador->obtenerProgramaPorID($idPE);
     if (!$programa) {
-        // Si no se encuentra el programa, redirige o muestra un mensaje de error
         echo '<script>alert("Programa no encontrado."); window.location.href = "gestionPE.php";</script>';
         exit();
     }
 } else {
-    // Si no se pasa el ID, redirige o muestra un mensaje de error
     echo '<script>alert("ID de programa no proporcionado."); window.location.href = "gestionPE.php";</script>';
     exit();
 }
 
-// Asegúrate de que el programa se recuperó correctamente
 $nombre = $programa['nombre'];
 $descripcion = $programa['descripcion'];
 $clave = $programa['clave'];
 $idPE = $programa['idPE'];
 
-// Verificar si el formulario fue enviado para actualizar el programa educativo
+/* Verificar si el formulario fue enviado para actualizar el programa educativo */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Obtener los datos del formulario
     $nombreNuevo = $_POST['nombre'];
     $descripcionNueva = $_POST['descripcion'];
     $claveNueva = $_POST['clave'];
 
-    // Llamar al método del controlador para actualizar el programa educativo
     $actualizado = $controlador->actualizarProgramaEducativo($idPE, $nombreNuevo, $descripcionNueva, $claveNueva);
 }
 ?>

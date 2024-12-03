@@ -1,10 +1,9 @@
 <?php
 require_once __DIR__ . '/../Controller/Controlador.php';
 
-// Crear una instancia del controlador de avisos
 $controlador = new Controlador();
 
-// Obtener los avisos para el alumno
+/* Obtener los avisos para el alumno */
 $avisos = $controlador->obtenerAvisosA();
 
 ?>

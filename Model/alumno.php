@@ -10,10 +10,9 @@ class Alumno {
 
     // Crear material
     public function crearMaterial($categoria, $titulo, $descripcion, $usuarioId, $file, $url) {
-        $fechaSubida = date('Y-m-d H:i:s'); // Fecha y hora actuales
+        $fechaSubida = date('Y-m-d H:i:s'); // Fecha y hora actual
 
-        // Gestionar la subida del archivo (URL)
-        // En la parte donde guardas el archivo
+        // Gestionar la subida del archivo (URL) en la parte donde guardas el archivo
         if (isset($file) && $file['error'] == 0) {
             $fileTmpPath = $file['tmp_name'];
             $fileName = $file['name'];
@@ -30,10 +29,8 @@ class Alumno {
             $URL = !empty($url) ? $url : null;
         }
 
-        // Llamamos al modelo para insertar el material en la base de datos
         $stmt = $this->db->prepare("INSERT INTO material (categoria, titulo, descripcion, fechaSubida, estado, URL, usuario_idU_M) VALUES (?, ?, ?, ?, 'pendiente', ?, ?)");
         
-        // Ejecutar la consulta y verificar si se insertó correctamente
         if ($stmt->execute([$categoria, $titulo, $descripcion, $fechaSubida, $URL, $usuarioId])) {
             echo "<script>alert('Material subido exitosamente'); window.location.href='subirMaterial.php';</script>";
         } else {
@@ -56,18 +53,15 @@ class Alumno {
         $resultado = $stmt->execute([$idMaterial]);
     
         if ($resultado) {
-            // Eliminar material exitoso
             echo "<script>alert('Eliminación exitosa'); window.location.href='gestionMaterial.php';</script>";
         } else {
-            // Error en la eliminación
             echo "<script>alert('Error al eliminar'); window.location.href='gestionMaterial.php';</script>";
         }
     }  
 
+    /* Obtener los materiales por su ID */
     public function obtenerMaterialPorId($idMaterial) {
-        // Verificar la conexión antes de realizar la consulta
         if ($this->db) {
-            // Consulta para obtener el material por ID
             $query = "
                 SELECT m.idM,m.categoria,m.titulo,m.descripcion,m.fechaSubida,m.estado,m.URL,
                     CONCAT(u.nombre, ' ', u.apellido) AS autor
@@ -77,21 +71,17 @@ class Alumno {
             ";
             $stmt = $this->db->prepare($query);
             if ($stmt) {
-                // Bind de los parámetros
-                $stmt->bind_param("i", $idMaterial); // Suponiendo que el ID es un número entero
+                $stmt->bind_param("i", $idMaterial);
                 $stmt->execute();
                 $resultado = $stmt->get_result();
-    
-                // Verificar si se encontró algún resultado
                 if ($resultado->num_rows === 0) {
                     echo "<script>alert('No se encontró el material con el ID especificado.'); window.location.href='gestionMaterial.php';</script>";
                     return false;
                 }
-    
-                $material = $resultado->fetch_assoc(); // Fetch sin argumentos
+
+                $material = $resultado->fetch_assoc();
                 $stmt->close();
-    
-                // Verificar que el array tenga todas las claves necesarias
+
                 if (!isset($material['autor'])) {
                     echo "<script>alert('El material no contiene información del autor.'); window.location.href='gestionMaterial.php';</script>";
                     return false;
@@ -108,45 +98,41 @@ class Alumno {
         }
     }    
 
+    /* Funcion para actualizar un material */
     public function actualizarMaterial($idM, $categoria, $titulo, $descripcion, $fechaSubida, $URL) {
-        // Gestionar la subida del archivo (URL)
-        // En la parte donde actualizas el archivo
+        // Gestionar la subida del archivo (URL) en la parte donde actualizas el archivo
         if (isset($file) && $file['error'] == 0) {
             $fileTmpPath = $file['tmp_name'];
             $fileName = $file['name'];
-            $fileDestination = '../../estancia/uploads/' . $fileName; // Ruta interna donde se guarda el archivo
+            $fileDestination = '../../estancia/uploads/' . $fileName; // Ruta donde se guarda el archivo
 
             // Mover el archivo a la carpeta 'uploads'
             if (move_uploaded_file($fileTmpPath, $fileDestination)) {
-                $URL = '/estancia/uploads/' . $fileName; // Ruta accesible por la web
+                $URL = '/estancia/uploads/' . $fileName;
             } else {
                 echo "<script>alert('Error al subir el archivo'); window.location.href='editarMaterial.php?id=$idM';</script>";
                 return;
             }
         }
         
-        // Aquí forzamos el estado a "pendiente" al editar el material
-        $estado = 'pendiente'; // Cambiar el estado a 'pendiente' al editar
+        // Modificamos el estado a pendiente una vez actualizado
+        $estado = 'pendiente';
         
-        // Preparar la consulta SQL para actualizar los materiales
         $stmt = $this->db->prepare("UPDATE material SET categoria = ?, titulo = ?, descripcion = ?, fechaSubida = ?, URL = ?, estado = ? WHERE idM = ?");
         
         $resultado = $stmt->execute([$categoria, $titulo, $descripcion, $fechaSubida, $URL, $estado, $idM]);
         
         if ($resultado) {
-            // Actualización exitosa
             echo "<script>alert('Material actualizado exitosamente.'); window.location.href='gestionMaterial.php';</script>";
         } else {
-            // Error al actualizar
             echo "<script>alert('Error al actualizar material.'); window.location.href='editarMaterial.php?id=$idM';</script>";
         }
     }    
 
-    /* Obtener comentarios de los materiales */
+    /* Obtener comentarios de los materiales aprobados o rechazados*/
     public function obtenerComentarios($idMaterial) {
-        // Usar la conexión que ya se ha establecido en el constructor
         $query = "SELECT comentarios FROM aprobarmaterial WHERE idAM = ?";
-        $stmt = $this->db->prepare($query); // Usar $this->db aquí en lugar de llamar a conectarBD()
+        $stmt = $this->db->prepare($query);
         $stmt->bind_param("i", $idMaterial);
         $stmt->execute();
         $resultado = $stmt->get_result();
@@ -158,6 +144,7 @@ class Alumno {
         }
     }    
     
+    /* Obtener los avisos que ven los alumnos con un limite de 5 */
     public function obtenerAvisosA($limite = 5) {
         $query = "SELECT titulo, descripcion FROM aviso ORDER BY fecha DESC LIMIT ?";
         $stmt = $this->db->prepare($query);  // Preparar la consulta SQL
@@ -166,21 +153,20 @@ class Alumno {
         $result = $stmt->get_result();       // Obtener el resultado de la consulta
     
         if ($result === false) {
-            echo "Error en la consulta: " . $stmt->error;  // Error si la consulta falla
-            return [];  // Devolver un array vacío en caso de error
+            echo "Error en la consulta: " . $stmt->error;
+            return [];
         }
     
         $avisos = [];
         while ($row = $result->fetch_assoc()) {
-            $avisos[] = $row;  // Agregar cada aviso al array
+            $avisos[] = $row;
         }
     
-        return $avisos;  // Retornar los avisos obtenidos
+        return $avisos;
     }
     
-    
+    /* Obtener los materiales aprobados en la ventana principal Alumno */
     public function obtenerMaterialesAprobados() {
-        // Consulta para obtener materiales aprobados junto con el autor (nombre y apellido)
         $sql = "
             SELECT m.idM, m.titulo, m.categoria, CONCAT(u.nombre, ' ', u.apellido) AS autor 
             FROM material m
@@ -191,15 +177,14 @@ class Alumno {
         $result = $this->db->query($sql);
         
         if ($result->num_rows > 0) {
-            return $result->fetch_all(MYSQLI_ASSOC); // Retorna los materiales aprobados con el autor (nombre y apellido)
+            return $result->fetch_all(MYSQLI_ASSOC);
         } else {
             return [];
         }
     }    
 
-    /* Calificar Material */
+    /* Funcion para calificar Material */
     public function calificarMaterial($materialId, $calificacion, $comentarios, $usuarioId) {
-        // Verificar la conexión antes de realizar la consulta
         if ($this->db) {
             // Verificar si el usuario ya ha calificado este material
             $queryVerificar = "SELECT * FROM Calificacion WHERE materialId = ? AND usuarioId = ?";
@@ -222,7 +207,6 @@ class Alumno {
                 }
             } else {
                 // Si no existe una calificación, insertamos una nueva
-                // Obtener el siguiente número de calificación
                 $query = "SELECT COALESCE(MAX(numeroC), 0) + 1 AS siguienteNumeroC FROM Calificacion WHERE materialId = ?";
                 $stmt = $this->db->prepare($query);
                 $stmt->bind_param("i", $materialId);
@@ -231,16 +215,13 @@ class Alumno {
                 $stmt->fetch();
                 $stmt->close();
     
-                // Insertar nueva calificación
                 $queryInsert = "INSERT INTO Calificacion (materialId, numeroC, calificacion, fechaHora, comentarios, usuarioId)
                                 VALUES (?, ?, ?, NOW(), ?, ?)";
                 $stmtInsert = $this->db->prepare($queryInsert);
                 if ($stmtInsert) {
-                    // Bind de los parámetros
                     $stmtInsert->bind_param("iiisi", $materialId, $siguienteNumeroC, $calificacion, $comentarios, $usuarioId);
                     $resultadoInsert = $stmtInsert->execute();
-    
-                    // Verificar si se insertó correctamente
+
                     if ($resultadoInsert) {
                         return "<script>alert('Calificación registrada con éxito');</script>";
                     } else {
@@ -255,13 +236,14 @@ class Alumno {
         }
     }    
     
+    /* Funcion para calificar material por usuarios separados */
     public function obtenerCalificacionPorUsuarioYMaterial($usuarioId, $materialId) {
         $query = "SELECT c.*, m.usuario_idU_M 
                 FROM Calificacion c
                 JOIN material m ON c.materialId = m.idM
                 WHERE m.usuario_idU_M = ? AND c.materialId = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param('ii', $usuarioId, $materialId); // Se pasan los parámetros
+        $stmt->bind_param('ii', $usuarioId, $materialId);
         $stmt->execute();
         $resultado = $stmt->get_result();
         return $resultado->fetch_assoc();
@@ -271,7 +253,7 @@ class Alumno {
     public function obtenerCalificacionYComentarios($materialId, $usuarioId) {
         $sql = "SELECT calificacion, comentarios FROM calificacion WHERE materialId = ? AND usuarioId = ?";
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("ii", $materialId, $usuarioId); // Vinculando los parámetros
+        $stmt->bind_param("ii", $materialId, $usuarioId);
         $stmt->execute();
         $result = $stmt->get_result();
         
@@ -279,12 +261,11 @@ class Alumno {
         if ($result->num_rows > 0) {
             return $result->fetch_assoc();
         }
-        
-        // Si no hay calificación previa, devuelve null
+
         return null;
     }
 
-    // Promediar calificacion
+    /* Funcion para promediar calificacion */
     public function obtenerCalificacionPromedio($materialId) {
         $sql = "SELECT AVG(calificacion) AS promedio FROM calificacion WHERE materialId = ?";
         $stmt = $this->db->prepare($sql);
@@ -292,13 +273,13 @@ class Alumno {
         $stmt->execute();
         $result = $stmt->get_result();
         
-        // Si se encuentra un resultado, devuelve el promedio, sino 0
+        // devuelve el promedio segun las calificaciones al material
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            return round($row['promedio'], 1); // Redondear el promedio a 1 decimal
+            return round($row['promedio'], 1);
         }
 
-        return 0; // Si no hay calificaciones, devolver 0
+        return 0;
     }
 
     //HISTORIAL ALUMNO
@@ -345,7 +326,6 @@ class Alumno {
         while ($row = $result->fetch_assoc()) {
             $historial[] = $row;
         }
-    
         return $historial;
     }
 }

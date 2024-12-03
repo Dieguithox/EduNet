@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../Controller/controlador.php'; // Ruta correcta para el controlador
+require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php';
 
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
@@ -9,7 +9,7 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
 // Verifica si el usuario está autenticado
 if (!isset($_SESSION['usuario'])) {
@@ -23,9 +23,9 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se ha enviado una solicitud para cerrar sesión
+// Verificar si se ha enviado una solicitud para cerrar sesión */
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
-    $controlador->cerrarSesion(); // Llama a la función para cerrar la sesión
+    $controlador->cerrarSesion();
 }
 
 ?>

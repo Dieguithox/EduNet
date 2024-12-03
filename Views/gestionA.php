@@ -11,7 +11,7 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
 
 $controlador = new Controlador(); 
 
-// Verifica si el usuario está autentificado
+/* Verifica si el usuario está autentificado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -19,17 +19,16 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se ha enviado una solicitud para cerrar sesión
+/* Verificar si se ha enviado una solicitud para cerrar sesión */
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
     $controlador->cerrarSesion();
 }
 
-// Obtener la lista de avisos
-$avisos = $controlador->obtenerAvisos(); // Método del controlador para obtener los avisos
+/* Obtener la lista de avisos */
+$avisos = $controlador->obtenerAvisos();
 
-// Verificar si el formulario de agregar aviso fue enviado
+/* Verificar si el formulario de agregar aviso fue enviado */
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['titulo']) && isset($_POST['descripcion'])) {
-    // Procesa el formulario de agregar aviso
     $titulo = $_POST['titulo'];
     $descripcion = $_POST['descripcion'];
     $fecha = date('Y-m-d');

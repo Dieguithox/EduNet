@@ -8,13 +8,12 @@ class Admin {
         $this->db = obtenerConexion(); // Obtener conexión en el constructor
     }
 
+    /* Funcion para eliminar un usuario de la tabla profesor y usuario */
     public function eliminarUsuario($id) {
-        // Primero, elimina los registros en la tabla 'profesor' que hacen referencia al usuario
         $stmtDeleteProfesor = $this->db->prepare("DELETE FROM profesor WHERE usuario_idU_P = ?");
         $stmtDeleteProfesor->bind_param("i", $id);
-        $stmtDeleteProfesor->execute(); // Ejecutar eliminación de profesores asociados
+        $stmtDeleteProfesor->execute();
     
-        // Luego, procede a eliminar el usuario
         $stmt = $this->db->prepare("DELETE FROM usuario WHERE idU = ?");
         $stmt->bind_param("i", $id);
         
@@ -32,6 +31,7 @@ class Admin {
         }
     }        
 
+    /* Funcion para listar usuarios con un limite de 20  */
     public function listarUsuarios($limit = 20, $offset = 0) {
         $stmt = $this->db->prepare("SELECT idU, usuario, nombre, apellido, correo, tipoUsuario, fechaRegistro, programaE_idPE FROM usuario LIMIT ? OFFSET ?");
         $stmt->bind_param("ii", $limit, $offset);
@@ -42,6 +42,7 @@ class Admin {
         return $usuarios;
     }    
 
+    /* Funcion para obtener los usuario s por su ID */
     public function obtenerUsuarioPorId($id) {
         $stmt = $this->db->prepare("SELECT * FROM usuario WHERE idU = ?");
         $stmt->bind_param("i", $id);
@@ -52,13 +53,14 @@ class Admin {
         return $usuario;
     }
     
+    /* Funcion para actualizar  usuario */
     public function actualizarUsuario($id, $nombre, $apellido, $correo, $tipoUsuario, $programaE_idPE) {
         $stmt = $this->db->prepare("UPDATE usuario SET nombre = ?, apellido = ?, correo = ?, tipoUsuario = ?, programaE_idPE = ? WHERE idU = ?");
         $stmt->bind_param("sssssi", $nombre, $apellido, $correo, $tipoUsuario, $programaE_idPE, $id);
         return $stmt->execute();
     }
     
-    // Función para verificar si el correo ya existe en la base de datos
+    /* Función para verificar si el correo ya existe en la base de datos */
     public function correoExistente($correo) {
         $stmt = $this->db->prepare("SELECT idU FROM usuario WHERE correo = ?");
         
@@ -76,6 +78,7 @@ class Admin {
         return $numRows > 0;
     }
 
+    /* Funcion para registrar usuarios */
     public function registrar($nombre, $apellido, $fechaNacimiento, $correo, $usuario, $contrasena, $tipoUsuario, $programaE_idPE = null) {
         // Verifica si el correo ya existe
         if ($this->correoExistente($correo)) {
@@ -83,41 +86,38 @@ class Admin {
             return false;
         }
     
-        // Prepara la consulta SQL para insertar el usuario
         $stmt = $this->db->prepare("INSERT INTO usuario (usuario, nombre, apellido, fecha_nacimiento, correo, contrasena, tipoUsuario, fechaRegistro, programaE_idPE) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
+        VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
 
-        // Asignar los valores a los parámetros de la consulta
         $stmt->bind_param("sssssssi", $usuario, $nombre, $apellido, $fechaNacimiento, $correo, $contrasena, $tipoUsuario, $programaE_idPE);
     
-        // Ejecutar la consulta
         if ($stmt->execute()) {
             echo '<script>alert("Registro exitoso"); window.location.href="gestionUsers.php";</script>';
             $stmt->close();
-            return true; // Si el registro es exitoso, redirige al listado de usuarios
+            return true;
         } else {
             echo '<script>alert("Error en el registro");</script>';
             $stmt->close();
-            return false; // Si ocurre un error en el registro
+            return false;
         }
     
-        $stmt->close(); // Cerrar la sentencia preparada
+        $stmt->close();
     }    
 
+    /* Funcion para obtener los programas educativos */
     public function obtenerProgramasEducativos() {
         $stmt = $this->db->prepare("SELECT idPE, clave FROM programaeducativo"); // Selecciona también 'idPE'
         if ($stmt->execute()) {
             $result = $stmt->get_result();
             $programas = $result->fetch_all(MYSQLI_ASSOC);
-            $stmt->close(); // Cerrar el statement
+            $stmt->close();
             return $programas;
         } else {
             return [];
         }
     }
     
-    /* CRUD PROGRAMAS EDUCATIVOS */
-    // Método para obtener todos los programas educativos
+    /* Funcion para obtener todos los programas educativos */
     public function obtenerProgramas() {
         $sql = "SELECT * FROM programaeducativo";
         $resultado = $this->db->query($sql);
@@ -128,36 +128,27 @@ class Admin {
         }
     }
 
-    // Registrar un nuevo programa educativo
+    /* Funcion para registrar un nuevo programa educativo */
     public function registrarPrograma($nombre, $descripcion, $clave) {
         // Consulta SQL para insertar el nuevo programa
         $sql = "INSERT INTO programaeducativo (nombre, descripcion, clave) VALUES (?, ?, ?)";
         
-        // Preparar la consulta
         $stmt = $this->db->prepare($sql);
         
         if ($stmt) {
-            // Enlazar los parámetros
             $stmt->bind_param("sss", $nombre, $descripcion, $clave);
-            
-            // Ejecutar la consulta
             $stmt->execute();
-            
-            // Cerrar la sentencia
             $stmt->close();
             
-            // Redirigir a la página de gestión de programas educativos
             header("Location: gestionPE.php");
-            exit(); // Asegurarse de detener la ejecución después de la redirección
+            exit();
         } else {
-            // Si hay un error al preparar la consulta, muestra un mensaje
             die("Error al preparar la consulta: " . $this->db->error);
         }
     }
 
-    // Método para actualizar un programa educativo
+    /* Funcion para actualizar un programa educativo */
     public function actualizarProgramaEducativo($idPE, $nombre, $descripcion, $clave) {
-        // Consulta SQL para actualizar el programa educativo
         $stmt = $this->db->prepare("UPDATE programaeducativo SET nombre = ?, descripcion = ?, clave = ? WHERE idPE = ?");
         
         if ($stmt) {
@@ -165,17 +156,15 @@ class Admin {
             $stmt->execute();
             $stmt->close();
             
-            // Si la actualización fue exitosa, redirige a 'gestionPE.php'
             header("Location: gestionPE.php");
-            exit(); // Asegúrate de detener la ejecución después de la redirección
+            exit();
         } else {
-            // En caso de error, muestra un mensaje de error
             echo "<script>alert('Error al actualizar el programa educativo.'); window.location.href = 'gestionPE.php';</script>";
             exit();
         }
     }
 
-    // Eliminar un programa educativo
+    /* Funcion para eliminar un programa educativo */
     public function eliminarPrograma($idPE) {
         $sql = "DELETE FROM programaeducativo WHERE idPE = ?";
         $stmt = $this->db->prepare($sql);
@@ -188,7 +177,7 @@ class Admin {
         }
     }
 
-    // Obtener un programa educativo por su ID
+    /* Funcion para obtener un programa educativo por su ID */
     public function obtenerProgramaPorID($idPE) {
         $stmt = $this->db->prepare("SELECT * FROM programaeducativo WHERE idPE = ?");
         if ($stmt) {
@@ -201,24 +190,22 @@ class Admin {
                 return $programa;
             } else {
                 $stmt->close();
-                return null; // Si no se encuentra el programa
+                return null;
             }
         } else {
             die("Error al preparar la consulta: " . $this->db->error);
         }
     }
 
-    //                              Función para restaurar base de datos desde archivo SQL      
+    /* Función para restaurar base de datos desde archivo SQL */  
     public function backDb($host, $user, $pass, $dbname, $tables = '*') {
-        // Conectar a la base de datos
         $conn = new mysqli($host, $user, $pass, $dbname);
         
-        // Verificar si la conexión es exitosa
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
     
-        // Si no se especifican tablas, obtener todas las tablas de la base de datos
+        // Obtener todas las tablas de la base de datos
         if ($tables == '*') {
             $tables = array();
             $sql = "SHOW TABLES";
@@ -229,21 +216,17 @@ class Admin {
         } else {
             $tables = is_array($tables) ? $tables : explode(',', $tables);
         }
-    
-        // Contenedor para el SQL de respaldo
+
         $outsql = '';
         
-        // Generar el SQL para cada tabla
         foreach ($tables as $table) {
-            // Obtener la estructura de la tabla
             $sql = "SHOW CREATE TABLE $table";
             $query = $conn->query($sql);
             $row = $query->fetch_row();
             
-            // Escribir la estructura de la tabla en el archivo de respaldo
             $outsql .= "\n\n" . $row[1] . ";\n\n";
     
-            // Obtener los datos de la tabla
+            // Obtener los datos de las tablas
             $sql = "SELECT * FROM $table";
             $query = $conn->query($sql);
             $columnCount = $query->field_count;
@@ -268,7 +251,6 @@ class Admin {
     
         // Nombre del archivo de respaldo
         $backup_file_name = __DIR__ . '/../backups/' . $dbname . '_respaldo.sql';
-        //$backup_file_name = $dbname . '_respaldo.sql';
     
         // Guardar el SQL generado en el archivo
         $fileHandler = fopen($backup_file_name, 'w+');
@@ -292,8 +274,7 @@ class Admin {
         exec('rm ' . $backup_file_name);
     }
 
-    /*                Restaurar Base de datos                */
-    // Método para restaurar la base de datos desde el archivo SQL
+    /* Funcion para restaurar la base de datos desde el archivo SQL */
     public function restoreDb($host, $user, $pass, $dbname, $file) {
         // Conexión a la base de datos
         $conn = new mysqli($host, $user, $pass, $dbname);
@@ -320,7 +301,7 @@ class Admin {
         return $resultado;
     }
 
-    /*                AVISOS                */
+    /* Funcion para obtener avisos */
     public function obtenerAvisos() {
         $avisos = [];
         $query = "SELECT * FROM aviso";
@@ -335,47 +316,42 @@ class Admin {
         return $avisos;
     }
     
+    /* Funcion para agregar un aviso nuevo */
     public function agregarAviso($titulo, $descripcion, $fecha) {
-        // Verificar la conexión antes de realizar la consulta
         if ($this->db) {
-            // Validar que todos los campos estén completos
             if (empty($titulo) || empty($descripcion) || empty($fecha)) {
                 echo "<script>alert('Todos los campos son obligatorios.');</script>";
-                return false; // Retorna false si algún campo está vacío
+                return false;
             }
     
-            // Obtener el id del usuario autenticado desde la sesión
-            $usuario_idU_A = $_SESSION['idU']; // El idU debe estar en la sesión
+            $usuario_idU_A = $_SESSION['idU'];
     
-            // Consulta para insertar el aviso
             $query = "INSERT INTO aviso (titulo, descripcion, fecha, usuario_idU_A) VALUES (?, ?, ?, ?)";
             $stmt = $this->db->prepare($query);
     
             if ($stmt) {
-                // Asignar los parámetros a la consulta preparada
                 $stmt->bind_param("sssi", $titulo, $descripcion, $fecha, $usuario_idU_A);
-    
-                // Ejecutar la consulta
+
                 if ($stmt->execute()) {
                     echo "<script>alert('Aviso agregado exitosamente'); window.location.href='gestionA.php';</script>";
                     $stmt->close();
-                    return true; // Retorna true si se agrega el aviso exitosamente
+                    return true;
                 } else {
                     echo "<script>alert('Error al agregar el aviso');</script>";
                     $stmt->close();
-                    return false; // Retorna false si hubo un error en la ejecución
+                    return false;
                 }
             } else {
                 echo "<script>alert('Error al preparar la consulta');</script>";
-                return false; // Retorna false si hubo un error al preparar la consulta
+                return false;
             }
         } else {
             echo "<script>alert('Error de conexión a la base de datos');</script>";
-            return false; // Retorna false si hay un error de conexión
+            return false;
         }
     }
 
-    // Modelo - Eliminar aviso
+    /* Funcion para eliminar un aviso */
     public function eliminarAviso($idAviso) {
         $query = "DELETE FROM aviso WHERE idA = ?";
         $stmt = $this->db->prepare($query);
@@ -385,50 +361,44 @@ class Admin {
 
             if ($stmt->execute()) {
                 $stmt->close();
-                // Genera el mensaje de éxito en JavaScript
                 echo "<script>alert('Aviso eliminado exitosamente'); window.location.href='gestionA.php';</script>";
                 return true;
             } else {
                 $stmt->close();
-                // Genera el mensaje de error en JavaScript
                 echo "<script>alert('Error al eliminar el aviso'); window.location.href='gestionA.php';</script>";
                 return false;
             }
         } else {
-            // Genera el mensaje de error en JavaScript si falla la preparación de la consulta
             echo "<script>alert('Error al preparar la consulta'); window.location.href='gestionA.php';</script>";
             return false;
         }
     }
 
-    // Modelo - Obtener aviso por ID
+    /* Funcion para obtener el aviso por su ID */
     public function avisoId($idAviso) {
         $stmt = $this->db->prepare("SELECT * FROM aviso WHERE idA = ?");
-        $stmt->bind_param("i", $idAviso);  // "i" indica que el parámetro es un entero
+        $stmt->bind_param("i", $idAviso);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
-            return $result->fetch_assoc(); // Devuelve el aviso como un array asociativo
+            return $result->fetch_assoc();
         } else {
-            // Si no se encuentra el aviso, muestra un mensaje en JavaScript
             echo "<script>alert('Aviso no encontrado'); window.location.href = 'gestionA.php';</script>";
-            return null; // Si no se encuentra el aviso
+            return null;
         }
     }
 
-    // Modelo - Actualizar aviso
+    /* Funcion para actualizar avisos */
     public function actualizarAviso($idA, $titulo, $descripcion) {
         $stmt = $this->db->prepare("UPDATE aviso SET titulo = ?, descripcion = ? WHERE idA = ?");
-        $stmt->bind_param("ssi", $titulo, $descripcion, $idA);  // "ssi" indica string, string, integer
+        $stmt->bind_param("ssi", $titulo, $descripcion, $idA);
         $stmt->execute();
 
         if ($stmt->affected_rows > 0) {
-            // Si se actualiza correctamente, muestra un mensaje de éxito en JavaScript
             echo "<script>alert('Aviso actualizado exitosamente'); window.location.href = 'gestionA.php';</script>";
-            return true;  // Devuelve true si se actualizó al menos un registro
+            return true;
         } else {
-            // Si no se actualiza, muestra un mensaje de error en JavaScript
             echo "<script>alert('Error al actualizar el aviso'); window.location.href = 'gestionA.php';</script>";
             return false;
         }

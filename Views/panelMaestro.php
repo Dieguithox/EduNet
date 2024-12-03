@@ -9,14 +9,14 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'docente') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verificar si se ha enviado una solicitud para cerrar sesión
+/* Verificar si se ha enviado una solicitud para cerrar sesión */
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
-    $controlador->cerrarSesion(); // Llama a la función para cerrar la sesión
+    $controlador->cerrarSesion();
 }
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '
         <script>

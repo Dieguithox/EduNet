@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../Controller/controlador.php'; // Ruta correcta para el controlador
+require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php';
 
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
@@ -9,9 +9,9 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -19,10 +19,10 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Obtener la lista de programas educativos
+/* Obtener la lista de programas educativos */
 $programas = $controlador->obtenerProgramasEducativos2();
 
-// Verificar si se solicita eliminar un programa
+/* Verificar si se solicita eliminar un programa */
 if (isset($_GET['action']) && $_GET['action'] == 'eliminar' && isset($_GET['id'])) {
     $idPE = $_GET['id'];
     $controlador->eliminarPrograma($idPE);
@@ -30,11 +30,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'eliminar' && isset($_GET['id']
     exit();
 }
 
-// Verificar si se envió el formulario
+/* Verificar si se envió el formulario de registrar programa educativo */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Verificar si es un registro o una actualización
     if (isset($_POST['action']) && $_POST['action'] == 'registrar') {
-        // Registrar nuevo programa
         $nombre = $_POST['nombre'];
         $descripcion = $_POST['descripcion'];
         $clave = $_POST['clave'];

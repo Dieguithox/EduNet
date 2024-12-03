@@ -1,9 +1,8 @@
 <?php  
-// Controlador y encabezado de página
 require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php'; 
 
-// Manejo de sesión y autenticación
+/* Manejo de sesión y autenticación */
 session_start();
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'alumno') {
     header("Location: login.php");
@@ -12,28 +11,27 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'alumno') {
 
 $controlador = new Controlador();
 
-// Obtener el ID del material a editar
+/* Obtener el ID del material a editar */
 if (isset($_GET['id'])) {
     $idMaterial = $_GET['id'];
     $material = $controlador->obtenerMaterialPorId($idMaterial);
 
     if (!$material) {
-        exit(); // Detener la ejecución si no se encuentra el material
+        exit();
     }
 } else {
-    exit(); // Detener la ejecución si no se proporciona el ID
+    exit();
 }
 
-// Actualizar el material si se envió el formulario
+/* Actualizar el material si se envió el formulario */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $categoria = $_POST['categoria'];
     $titulo = $_POST['titulo'];
     $descripcion = $_POST['descripcion'];
 
     // Asignamos la fecha actual a fechaSubida
-    $fechaSubida = date('Y-m-d H:i:s'); // Fecha actual
+    $fechaSubida = date('Y-m-d H:i:s');
     
-    // Si se sube un nuevo archivo
     if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] == 0) {
         $fileTmpPath = $_FILES['archivo']['tmp_name'];
         $fileName = $_FILES['archivo']['name'];
@@ -46,11 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
         }
     } else {
-        // Si no se sube un archivo, mantener la URL proporcionada por el formulario o la URL original
+        /* URL */
         $URL = $_POST['url'] ?: $material['URL']; // Si no hay URL proporcionada, mantén la original
     }    
 
-    // Actualizar material en la base de datos
+    /* Actualizar material en la base de datos */
     $controlador->actualizarMaterial($idMaterial, $categoria, $titulo, $descripcion, $fechaSubida, $URL);
 }
 ?>

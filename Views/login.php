@@ -8,7 +8,6 @@ $controlador = new Controlador();
 // Redirigir si el usuario ya está autenticado
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario'])) {
     if ($_POST['formulario'] === "login") {
-        // Recibir los datos del formulario de inicio de sesión
         $correo = trim($_POST['correo']);
         $contrasena = trim($_POST['contrasena']);
         
@@ -42,12 +41,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario'])) {
     }
 }
 
-// Llamar a la función para obtener programas educativos
-$programas = $controlador->obtenerProgramasEducativos(); // Obtener programas educativos
+/* Llamar a la función para obtener programas educativos */
+$programas = $controlador->obtenerProgramasEducativos();
 
-// Procesar formulario de registro
+/* Procesar formulario de registro de usuario */
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario']) && $_POST['formulario'] === "registro") {
-    // Recibir los datos del formulario de registro
     $usuario = trim($_POST['usuario']);
     $nombre = trim($_POST['nombre']);
     $apellido = trim($_POST['apellido']);
@@ -57,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario']) && $_POS
     $tipoUsuario = $_POST['tipoUsuario'];
     $programaE_idPE = $_POST['programaE_idPE'] ?? null;
 
-    // Obtener la fecha actual en formato YYYY-MM-DD
+    // Obtener la fecha actual
     $currentDate = date('Y-m-d');
 
     // Validación de fecha de nacimiento no posterior a la fecha actual
@@ -68,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario']) && $_POS
         return;
     }
 
-    // Validaciones adicionales (si las necesitas)
+    // Validaciones todos los campos son obligatorios
     if (empty($usuario) || empty($nombre) || empty($apellido) || empty($correo) || empty($contrasena) || empty($tipoUsuario)) {
         echo '<script>alert("Por favor, complete todos los campos obligatorios.");
         window.location.href = "login.php";    
@@ -76,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario']) && $_POS
         return;
     }
 
+    /* Validacion de correo electronico */
     if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
         echo '<script>alert("El correo electrónico no es válido.");
         window.location.href = "login.php";    
@@ -83,6 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario']) && $_POS
         return;
     }
 
+    /* Validacion de contraseña */
     if (strlen($contrasena) < 7) {
         echo '<script>alert("La contraseña debe tener al menos 7 caracteres.");
         window.location.href = "login.php";    
@@ -90,7 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['formulario']) && $_POS
         return;
     }
 
-    // Si todo es correcto, llamar a la función de registro
     $resultadoRegistro = $controlador->registrarUsuario($nombre, $apellido, $fechaNacimiento, $correo, $usuario, $contrasena, $tipoUsuario, $programaE_idPE);
 }
 ?>

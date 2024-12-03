@@ -9,14 +9,14 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'docente') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verificar si se ha enviado una solicitud para cerrar sesión
+/* Verificar si se ha enviado una solicitud para cerrar sesión */
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
-    $controlador->cerrarSesion(); // Llama a la función para cerrar la sesión
+    $controlador->cerrarSesion();
 }
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '
         <script>
@@ -28,14 +28,12 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se ha enviado el formulario de búsqueda
+/* Verificar si se ha enviado el formulario de búsqueda */
 $historial = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['usuario'])) {
     $usuario = $_POST['usuario']; // Obtener el nombre de usuario desde el formulario
-    // Obtener el ID del usuario desde el controlador
     $usuarioId = $controlador->obtenerUsuarioIdPorNombre($usuario);
     
-    // Si el usuario fue encontrado, buscar su historial
     if ($usuarioId) {
         $historial = $controlador->mostrarHistorialAlumno($usuarioId);
     } else {

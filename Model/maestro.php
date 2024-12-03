@@ -8,6 +8,7 @@ class Maestro {
         $this->db = obtenerConexion(); // Obtener conexión en el constructor
     }
     
+    /* Funcion para obtener el usuario por su ID */
     public function obtenerUsuarioPorId($id) {
         $stmt = $this->db->prepare("SELECT * FROM usuario WHERE idU = ?");
         $stmt->bind_param("i", $id);
@@ -18,7 +19,7 @@ class Maestro {
         return $usuario;
     }
 
-    // Método para obtener el ID del profesor desde la tabla usuario
+    /* Funcion para obtener el ID del profesor desde la tabla usuario */
     public function obtenerProfesorIdPorUsuario($usuarioId) {
         $query = "SELECT p.idP FROM profesor p JOIN usuario u ON u.idU = p.usuario_idU_P WHERE u.idU = ?";
         $stmt = $this->db->prepare($query);
@@ -27,14 +28,14 @@ class Maestro {
         $result = $stmt->get_result();
 
         if ($row = $result->fetch_assoc()) {
-            return $row['idP'];  // Devuelve el ID del profesor
+            return $row['idP'];
         } else {
-            return null;  // Si no se encuentra, devuelve null
+            return null;
         }
     }
 
 
-    // Obtener materiales pendientes con autor
+    /* Funcion para obtener los materiales pendientes */
 public function obtenerMaterialesPendientes() {
     $stmt = $this->db->prepare("
         SELECT m.idM, m.titulo, m.categoria, m.descripcion, m.fechaSubida, m.estado, m.URL, 
@@ -44,34 +45,33 @@ public function obtenerMaterialesPendientes() {
         WHERE m.estado = 'pendiente'
     ");
     $stmt->execute();
-    
-    // Obtener todos los resultados como un array asociativo
+
     $result = $stmt->get_result();
-    return $result->fetch_all(MYSQLI_ASSOC); // Devuelve todos los resultados en un array asociativo
+    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-    // Actualizar el estado del material
+    /* Funcion para actualizar el estado del material */
     public function actualizarEstadoMaterial($idMaterial, $nuevoEstado) {
         $query = "UPDATE material SET estado = ? WHERE idM = ?";
         $stmt = $this->db->prepare($query);
     
         if ($stmt) {
-            $stmt->bind_param("si", $nuevoEstado, $idMaterial); // 's' para string y 'i' para integer
+            $stmt->bind_param("si", $nuevoEstado, $idMaterial);
             $stmt->execute();
     
-            if ($stmt->affected_rows > 0) {  // Verificar si al menos una fila fue afectada
+            if ($stmt->affected_rows > 0) {
                 $stmt->close();
-                return true;  // La actualización fue exitosa
+                return true;
             } else {
                 $stmt->close();
-                return false;  // No se actualizó ninguna fila
+                return false;
             }
         } else {
-            return false;  // Hubo un error en la preparación de la consulta
+            return false;
         }
     }    
 
-    // Aprobar el material
+    /* Funcion para aprobar el material */
     public function aprobarMaterial($idMaterial, $comentarios, $fechaAprobacion, $esRechazado = false) {
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -99,7 +99,7 @@ public function obtenerMaterialesPendientes() {
             return false;
         }
         $stmtTitulo->close();
-        // Insertar los comentarios en aprobarMaterial independientemente del estado
+
         $sql = "INSERT INTO aprobarMaterial(titulo, comentarios, fechaAprobacion, profesor_idP_AM) VALUES (?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         if ($stmt) {

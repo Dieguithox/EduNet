@@ -3,16 +3,15 @@ session_start();
 require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php';
 
-// Validación de sesión
+/* Validación de sesión */
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'alumno') {
     header("Location: login.php");
     exit();
 }
 
-// Instanciar el controlador
 $controlador = new Controlador();
 
-// Verificar si el usuario está autenticado
+/* Verificar si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -20,24 +19,22 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si el id del material está en la URL y obtener sus datos a través del controlador
+/* Verificar si el id del material está en la URL y obtener sus datos a través del controlador */
 if (isset($_GET['idAM'])) {
     $idAM = $_GET['idAM'];
     $material = $controlador->obtenerMaterialPorId($idAM);
 }
 
-// Procesar la solicitud POST solo si el formulario ha sido enviado
+/* Procesar el formulario para calificar material */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['materialId'], $_POST['calificacion'], $_POST['comentarios'])) {
         $materialId = intval($_POST['materialId']);
         $calificacion = intval($_POST['calificacion']);
         $comentarios = trim($_POST['comentarios']);
 
-        $usuarioId = $_SESSION['idU'];  // O el valor que corresponda
-        // Procesar la calificación
+        $usuarioId = $_SESSION['idU'];
         $resultado = $controlador->calificarMaterial($materialId, $calificacion, $comentarios, $usuarioId);
 
-        // Mensaje de éxito o error con JavaScript alert
         if ($resultado) {
             echo '<script>alert("¡Calificación registrada con éxito!");</script>';
         } else {
@@ -46,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+/* cargar la calificacion y comentarios de los materiales  */
 $calificacionExistente = $controlador->obtenerCalificacionYComentarios($idAM, $_SESSION['idU']);
 ?>
 

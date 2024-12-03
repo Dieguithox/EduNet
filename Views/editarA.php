@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../Controller/controlador.php'; // Ruta correcta para el controlador
+require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php';
 
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
@@ -9,9 +9,9 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -19,26 +19,22 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se pasó el parámetro 'id' en la URL para editar un aviso
 if (isset($_GET['id'])) {
     $idAviso = $_GET['id'];
-    $aviso = $controlador->obtenerAvisoPorID($idAviso); // Llama al método del controlador
+    $aviso = $controlador->obtenerAvisoPorID($idAviso);
 }
 
-// Asegúrate de que el aviso se recuperó correctamente
 $titulo = $aviso['titulo'];
 $descripcion = $aviso['descripcion'];
 $fecha = $aviso['fecha'];
 $idAviso = $aviso['idA'];
 
-// Verificar si el formulario fue enviado para actualizar el aviso
+/* Verificar si se mando el formulario de editar aviso */
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Obtener los datos del formulario
     $tituloNuevo = $_POST['titulo'];
     $descripcionNueva = $_POST['descripcion'];
-    $idAviso = $_POST['idAviso']; // Asegurarse de que el ID del aviso se esté recibiendo correctamente
+    $idAviso = $_POST['idAviso'];
 
-    // Llamar al método del modelo para actualizar el aviso
     $actualizado = $controlador->actualizarAviso($idAviso, $tituloNuevo, $descripcionNueva);
 }
 

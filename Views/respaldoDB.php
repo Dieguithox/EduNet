@@ -4,15 +4,15 @@ session_start();
 require_once __DIR__ . '/../Controller/controlador.php'; // Ruta correcta para el controlador
 include 'header.php';
 
-// Verificar si el usuario es administrador
+/* Verificar si el usuario es administrador */
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     header("Location: login.php");
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '
         <script>
@@ -24,7 +24,7 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se ha solicitado un respaldo
+/* Verificar si se ha solicitado un respaldo */
 if (isset($_POST['backupnow'])) {
     // Obtener los datos del formulario
     $server = $_POST['server'];
@@ -32,15 +32,13 @@ if (isset($_POST['backupnow'])) {
     $password = $_POST['password'];
     $dbname = $_POST['dbname'];
 
-    // Llamar al método de respaldo desde el controlador
     $controlador->procesarRespaldo(); // Esto llama al método procesarRespaldo
 
     exit();
 }
 
-// Verificar si se ha solicitado la restauración
+/* Verificar si se ha solicitado la restauración */
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['archivo_sql']) && $_FILES['archivo_sql']['error'] == 0) {
-    // Llamar a la función para restaurar la base de datos
     $controlador->restaurarBaseDeDatos();
 }
 ?>

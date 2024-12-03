@@ -4,12 +4,13 @@ session_start();
 require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php'; 
 
-// Llamada al método de cerrar sesión si la acción es 'logout'
+/* Metodo para llamar a la funcion cerrar sesion */
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
     $controlador = new Controlador();
     $controlador->cerrarSesion();
 }
 
+/* metodo para  verificar el tipo de usuario */
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     header("Location: login.php");
     exit();
@@ -17,6 +18,7 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
 
 $controlador = new Controlador();
 
+/* verificar si el usuario esta autentificado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -24,7 +26,7 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Manejo de la creación de un nuevo usuario
+/* Manejo de la creación de un nuevo usuario */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuario = $_POST['usuario'];
     $nombre = $_POST['nombre'];
@@ -35,20 +37,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipoUsuario = $_POST['tipoUsuario'];
     $programaE_idPE = $_POST['programaE_idPE'] ?? null;
 
-    // Ahora llama a registrar con los parámetros correctos
     $admin = new Admin();
     $admin->registrar($nombre, $apellido, $fechaNacimiento, $correo, $usuario, $contrasena, $tipoUsuario, $programaE_idPE);
 }
 
-// Verificar si se solicita eliminar un usuario
+/* Verificar si se solicita eliminar un usuario */
 if (isset($_GET['action']) && $_GET['action'] == 'eliminar' && isset($_GET['id'])) {
     $idUsuario = $_GET['id'];
-    // Llamar al método eliminarUsuario del controlador
     $resultado = $controlador->eliminarUsuario($idUsuario);
     exit();
 }
 
-// Obtener la lista de usuarios
+/* Obtener la lista de usuarios */
 $usuarios = $controlador->listarUsuarios();
 $programas = $controlador->obtenerProgramasEducativos();  // Obtener los programas educativos
 ?>

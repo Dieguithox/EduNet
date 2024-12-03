@@ -17,13 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $categoria = $_POST['categoria'];
     $titulo = $_POST['titulo'];
     $descripcion = $_POST['descripcion'];
-    $usuarioId = $_SESSION['idU']; // Obtener el ID del usuario desde la sesión
+    $usuarioId = $_SESSION['idU'];
 
-    // Verifica que el archivo haya sido subido correctamente
     $file = $_FILES['archivo'];
     $url = isset($_POST['url']) ? $_POST['url'] : null;
     
-    // Llamar al controlador para crear el material
     $controlador->crearMaterial($categoria, $titulo, $descripcion, $usuarioId, $file, $url);
 }
 ?>

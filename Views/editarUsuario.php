@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-require_once __DIR__ . '/../Controller/controlador.php'; // Ruta correcta para el controlador
+require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php'; 
 
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
@@ -9,9 +9,9 @@ if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'admin') {
     exit();
 }
 
-$controlador = new Controlador(); // Instanciando el controlador
+$controlador = new Controlador();
 
-// Verifica si el usuario está autenticado
+/* Verifica si el usuario está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '
         <script>
@@ -23,38 +23,34 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Verificar si se ha enviado una solicitud para cerrar sesión
+/* Verificar si se ha enviado una solicitud para cerrar sesión */
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
-    $controlador->cerrarSesion(); // Llama a la función para cerrar la sesión
+    $controlador->cerrarSesion();
 }
 
-// Obtener el ID del usuario a editar
+/* Obtener el ID del usuario a editar */
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    // Llamar a la función del controlador para obtener los datos del usuario
     $usuario = $controlador->obtenerUsuarioPorId($id);
 
-    // Si el usuario no existe, redirige
     if (!$usuario) {
         echo '<script>alert("Usuario no encontrado."); window.location.href="gestionUsers.php";</script>';
         exit();
     }
 }
 
-// Obtener la lista de programas educativos
+/* Obtener la lista de programas educativos */
 $programas = $controlador->obtenerProgramasEducativos();
 
-// Manejo de la actualización de los datos del usuario
+/* Manejo de la actualización de los datos del usuario */
 if (isset($_POST['submit'])) {
-    // Obtener los datos del formulario
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
     $correo = $_POST['correo'];
     $tipoUsuario = $_POST['tipoUsuario'];
     $programaE_idPE = $_POST['programaE_idPE'];
 
-    // Llamar a la función del controlador para actualizar los datos
     $exito = $controlador->actualizarUsuario($id, $nombre, $apellido, $correo, $tipoUsuario, $programaE_idPE);
 
     if ($exito) {

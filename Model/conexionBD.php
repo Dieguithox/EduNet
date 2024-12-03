@@ -1,4 +1,5 @@
 <?php
+/* Funcion donde obtenemos los datos de la conexion a la base de datos */
 function obtenerConexion() {
     $conexion = mysqli_connect("localhost", "root", "", "eduNet");
     if (!$conexion) {
@@ -6,14 +7,4 @@ function obtenerConexion() {
     }
     return $conexion;
 }
-?>
-
-<?php
-    /*$conexion = mysqli_connect("localhost","root","","barbershop");
-        //VERIFICACION DE CONEXION A LA BD
-    if($conexion){
-        echo 'Conectado exitosamente a la BD';
-    }else{
-        echo 'Error al conectar a la BD';
-    }*/
 ?>

@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/../Controller/controlador.php';
 
-// Verificar si el usuario está autenticado como profesor
+/* Verificar si el usuario está autenticado como docente */
 if (!isset($_SESSION['usuario']) || $_SESSION['tipoUsuario'] != 'docente') {
     echo '<script>alert("Debes iniciar sesión como profesor!!");</script>';
     session_destroy();
@@ -12,18 +12,17 @@ if (!isset($_SESSION['usuario']) || $_SESSION['tipoUsuario'] != 'docente') {
 
 $controlador = new Controlador();
 
-// Verificar si se ha enviado el formulario para aprobar material
+/* Verificar si se ha enviado el formulario para aprobar material */
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['idMaterial']) && isset($_POST['comentarios'])) {
     $idMaterial = $_POST['idMaterial'];
     $comentarios = $_POST['comentarios'];
     $fechaAprobacion = date('Y-m-d H:i:s');
-    $accion = $_POST['accion']; // 'aceptar' o 'rechazar'
+    $accion = $_POST['accion'];
 
     // Verificar si los campos están completos
     if (empty($idMaterial) || empty($comentarios)) {
         echo '<script>alert("Todos los campos son obligatorios.");</script>';
     } else {
-        // Llamar al método del controlador para registrar la aprobación o rechazo
         if ($accion == 'aceptar') {
             $controlador->aprobarMaterial($idMaterial, $comentarios, $fechaAprobacion);
         } elseif ($accion == 'rechazar') {
@@ -35,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['idMaterial']) && isset
 // Verificar si se ha enviado una solicitud para cerrar sesión
 if (isset($_GET['action']) && $_GET['action'] == 'logout') {
     $controlador->cerrarSesion();
-    session_unset(); // Limpiar las variables de sesión
+    session_unset();
     header("Location: login.php");
     exit();
 }
 
-// Obtener la lista de materiales pendientes
+/* Obtener la lista de materiales pendientes */
 $materialesPendientes = $controlador->obtenerMaterialesPendientes();
 
 ?>

@@ -1,19 +1,17 @@
-<?php 
-// Controlador y encabezado de página
+<?php
 session_start();
 require_once __DIR__ . '/../Controller/controlador.php';
 include 'header.php'; 
 
-// Manejo de sesión y autenticación
+/* Manejo de sesión y autenticación */
 if (!isset($_SESSION['tipoUsuario']) || $_SESSION['tipoUsuario'] != 'alumno') {
     header("Location: login.php");
     exit();
 }
 
-// Instancia del controlador
 $controlador = new Controlador();
 
-// Redirección a inicio de sesión si no está autenticado
+/* Redirección a inicio de sesión si no está autenticado */
 if (!isset($_SESSION['usuario'])) {
     echo '<script>alert("Debes iniciar sesión!!");</script>';
     session_destroy();
@@ -21,7 +19,7 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-// Manejo de eliminación de material
+/* Manejo de eliminación de material */
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['eliminarMaterial'])) {
     if (isset($_POST['idMaterial']) && !empty($_POST['idMaterial'])) {
         $idMaterial = $_POST['idMaterial'];
@@ -31,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['eliminarMaterial'])) {
     }
 }
 
-// Debes asegurarte de que la función recibe el ID de usuario.
 $usuarioId = $_SESSION['idU']; // Obtener el ID del usuario desde la sesión
 $materiales = $controlador->listarMateriales($usuarioId); // Pasar el ID de usuario a la función
 
